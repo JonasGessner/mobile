@@ -226,6 +226,7 @@ var (
 	buildWork       bool        // -work
 	buildBundleID   string      // -bundleid
 	buildIOSVersion string      // -iosversion
+	buildmacOSVersion string    // -macosversion
 	buildAndroidAPI int         // -androidapi
 	buildTags       stringsFlag // -tags
 )
@@ -236,7 +237,8 @@ func addBuildFlags(cmd *command) {
 	cmd.flag.StringVar(&buildLdflags, "ldflags", "", "")
 	cmd.flag.StringVar(&buildTarget, "target", "android", "")
 	cmd.flag.StringVar(&buildBundleID, "bundleid", "", "")
-	cmd.flag.StringVar(&buildIOSVersion, "iosversion", "7.0", "")
+	cmd.flag.StringVar(&buildIOSVersion, "iosversion", "13.0", "")
+	cmd.flag.StringVar(&buildmacOSVersion, "macosversion", "10.15", "")
 	cmd.flag.IntVar(&buildAndroidAPI, "androidapi", minAndroidAPI, "")
 
 	cmd.flag.BoolVar(&buildA, "a", false, "")

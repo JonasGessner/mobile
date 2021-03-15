@@ -28,7 +28,7 @@ var (
 func allArchs(targetOS string) []string {
 	switch targetOS {
 	case "ios":
-		return []string{"arm64", "amd64"}
+		return []string{"ios_arm64", "sim_arm64", "sim_amd64", "catalyst_arm64", "catalyst_amd64", "macos_arm64", "macos_amd64"}
 	case "android":
 		return []string{"arm", "arm64", "386", "amd64"}
 	default:
@@ -145,13 +145,39 @@ func envInit() (err error) {
 		var env []string
 		var err error
 		var clang, cflags string
+		var goarch string
 		switch arch {
-		case "arm64":
+		case "ios_arm64":
+			goarch = "arm64"
 			clang, cflags, err = envClang("iphoneos")
 			cflags += " -miphoneos-version-min=" + buildIOSVersion
-		case "amd64":
+		
+		case "sim_arm64":
+			goarch = "arm64"
 			clang, cflags, err = envClang("iphonesimulator")
 			cflags += " -mios-simulator-version-min=" + buildIOSVersion
+		case "sim_amd64":
+			goarch = "amd64"
+			clang, cflags, err = envClang("iphonesimulator")
+			cflags += " -mios-simulator-version-min=" + buildIOSVersion
+
+		case "catalyst_arm64":
+			goarch = "arm64"
+			clang, cflags, err = envClang("macosx")
+			cflags += " -target x86_64-apple-ios"+buildIOSVersion+"-macabi"
+		case "catalyst_amd64":
+			goarch = "amd64"
+			clang, cflags, err = envClang("macosx")
+			cflags += " -target x86_64-apple-ios"+buildIOSVersion+"-macabi"
+
+		case "macos_arm64":
+			goarch = "arm64"
+			clang, cflags, err = envClang("macosx")
+			cflags += " -mmacosx-version-min=" + buildmacOSVersion
+		case "macos_amd64":
+			goarch = "amd64"
+			clang, cflags, err = envClang("macosx")
+			cflags += " -mmacosx-version-min=" + buildmacOSVersion
 		default:
 			panic(fmt.Errorf("unknown GOARCH: %q", arch))
 		}
@@ -164,7 +190,7 @@ func envInit() (err error) {
 		}
 		env = append(env,
 			"GOOS=darwin",
-			"GOARCH="+arch,
+			"GOARCH="+goarch,
 			"CC="+clang,
 			"CXX="+clang+"++",
 			"CGO_CFLAGS="+cflags+" -arch "+archClang(arch),
@@ -233,6 +259,10 @@ func archClang(goarch string) string {
 		return "i386"
 	case "amd64":
 		return "x86_64"
+	case "ios_arm64", "sim_arm64", "catalyst_arm64", "macos_arm64":
+		return "arm64"
+	case "catalyst_amd64", "sim_amd64", "macos_amd64":
+		return "x86_64" 
 	default:
 		panic(fmt.Sprintf("unknown GOARCH: %q", goarch))
 	}
